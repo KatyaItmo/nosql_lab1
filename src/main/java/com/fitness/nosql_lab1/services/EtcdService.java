@@ -40,13 +40,13 @@ public class EtcdService {
                 .toString(StandardCharsets.UTF_8);
     }
 
-    public List<String> getList(String key) throws Exception {
+    public List<String> getList(String prefix) throws Exception {
         GetOption option = GetOption.builder()
                 .isPrefix(true)
                 .build();
 
         List<KeyValue> values = kvClient
-                .get(ByteSequence.from(key.getBytes()), option)
+                .get(ByteSequence.from(prefix.getBytes()), option)
                 .get()
                 .getKvs();
 

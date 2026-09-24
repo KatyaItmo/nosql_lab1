@@ -1,6 +1,7 @@
 package com.fitness.nosql_lab1.rest;
 
 import com.fitness.nosql_lab1.dtos.UserDto;
+import com.fitness.nosql_lab1.objects.Role;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.EtcdService;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +25,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) throws Exception{
-        String role = userDto.getRole();
+    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) throws Exception {
+        Role role = Role.SIMPLE;
+        if (userDto.getRole().equals("MODER")) {
+            role = Role.MODER;
+        }
+
         String username = userDto.getUsername();
         String password = userDto.getPassword();
 

@@ -1,11 +1,11 @@
 package com.fitness.nosql_lab1.objects;
 
 public class User {
-    private String role;
+    private Role role;
     private String username;
     private String password;
 
-    public User(String role, String username, String password) {
+    public User(Role role, String username, String password) {
         this.role = role;
         this.username = username;
         this.password = password;
@@ -29,11 +29,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
