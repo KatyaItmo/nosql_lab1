@@ -50,7 +50,7 @@ public class PlanController {
     @GetMapping
     public ResponseEntity<List<Plan>> getPlans(@CookieValue(name = "SESSION") String session) throws Exception {
         if (!checkUserService.checkUser(session)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         List<String> jsonList = etcdService.getList("plan:");
