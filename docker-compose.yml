@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  etcd-db:
+    image: bitnami/etcd:latest
+    container_name: etcd-db
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd-db:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+    ports:
+      - "2379:2379"
+
+  fitness-app:
+    build: .
+    container_name: fitness-app
+    ports:
+      - "8080:8080"
+    environment:
+      - ETCD_ENDPOINTS=http://etcd-db:2379
+    depends_on:
+      - etcd-db
