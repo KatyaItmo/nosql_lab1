@@ -3,12 +3,11 @@ package com.fitness.nosql_lab1.rest;
 import com.fitness.nosql_lab1.dtos.UserDto;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.EtcdService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
@@ -58,13 +57,37 @@ public class UserController {
             User user = objectMapper.readValue(jsonUser, User.class);
 
             if (user.getPassword().equals(password)) {
-                // должен появиться создание куки
+                String sessionToken = UUID.randomUUID().toString();
+                etcdService.put("session:" + sessionToken, objectMapper.writeValueAsString(user));
 
-                return ResponseEntity.ok("Выполнен вход под логином " + username);
+                ResponseCookie cookie = ResponseCookie.from("SESSION", sessionToken)
+                        .httpOnly(true)
+                        .path("/")
+                        .maxAge(3600)
+                        .build();
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body("Выполнен вход под логином " + username);
             }
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный логин или пароль");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@CookieValue(name = "SESSION") String session) throws Exception {
+        etcdService.delete("session:" + session);
+
+        ResponseCookie logoutCookie = ResponseCookie.from("SESSION", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, logoutCookie.toString())
+                .body("Выход выполнен");
     }
 
     private boolean checkUser(String username) throws Exception {
