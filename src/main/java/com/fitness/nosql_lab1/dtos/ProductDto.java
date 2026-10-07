@@ -1,10 +1,9 @@
 package com.fitness.nosql_lab1.dtos;
 
-public class PlanDto {
+public class ProductDto {
     private String name;
     private String description;
-    private int monthCost;
-    private int yearCost;
+    private int cost;
 
     public String getName() {
         return name;
@@ -22,19 +21,11 @@ public class PlanDto {
         this.description = description;
     }
 
-    public int getYearCost() {
-        return yearCost;
+    public int getCost() {
+        return cost;
     }
 
-    public void setYearCost(int yearCost) {
-        this.yearCost = yearCost;
-    }
-
-    public int getMonthCost() {
-        return monthCost;
-    }
-
-    public void setMonthCost(int monthCost) {
-        this.monthCost = monthCost;
+    public void setCost(int cost) {
+        this.cost = cost;
     }
 }

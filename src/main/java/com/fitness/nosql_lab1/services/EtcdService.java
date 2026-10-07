@@ -7,6 +7,7 @@ import io.etcd.jetcd.options.GetOption;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -20,14 +21,14 @@ public class EtcdService {
 
     public void put(String key, String value) throws Exception {
         kvClient.put(
-                ByteSequence.from(key.getBytes()),
-                ByteSequence.from(value.getBytes())
+                ByteSequence.from(key.getBytes(StandardCharsets.UTF_8)),
+                ByteSequence.from(value.getBytes(StandardCharsets.UTF_8))
         ).get();
     }
 
     public String get(String key) throws Exception {
         List<KeyValue> values = kvClient
-                .get(ByteSequence.from(key.getBytes()))
+                .get(ByteSequence.from(key.getBytes(StandardCharsets.UTF_8)))
                 .get()
                 .getKvs();
 
@@ -46,12 +47,12 @@ public class EtcdService {
                 .build();
 
         List<KeyValue> values = kvClient
-                .get(ByteSequence.from(prefix.getBytes()), option)
+                .get(ByteSequence.from(prefix.getBytes(StandardCharsets.UTF_8)), option)
                 .get()
                 .getKvs();
 
         if (values.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return values.stream()
@@ -60,6 +61,6 @@ public class EtcdService {
     }
 
     public void delete(String key) throws Exception {
-        kvClient.delete(ByteSequence.from(key.getBytes())).get();
+        kvClient.delete(ByteSequence.from(key.getBytes(StandardCharsets.UTF_8))).get();
     }
 }

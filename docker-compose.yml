@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   etcd-db:
-    image: bitnami/etcd:latest
+    image: gcr.io/etcd-development/etcd:v3.5.11
     container_name: etcd-db
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes

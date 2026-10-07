@@ -2,8 +2,7 @@ package com.fitness.nosql_lab1.dtos;
 
 public class OrderDto {
     private String clientName;
-    private String subscriptionType;
-    private int period;
+    private String idProduct;
     private int amount;
 
     public String getClientName() {
@@ -14,20 +13,12 @@ public class OrderDto {
         this.clientName = clientName;
     }
 
-    public String getSubscriptionType() {
-        return subscriptionType;
+    public String getIdProduct() {
+        return idProduct;
     }
 
-    public void setSubscriptionType(String subscriptionType) {
-        this.subscriptionType = subscriptionType;
-    }
-
-    public int getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(int period) {
-        this.period = period;
+    public void setIdProduct(String idProduct) {
+        this.idProduct = idProduct;
     }
 
     public int getAmount() {
@@ -37,5 +28,4 @@ public class OrderDto {
     public void setAmount(int amount) {
         this.amount = amount;
     }
-
 }

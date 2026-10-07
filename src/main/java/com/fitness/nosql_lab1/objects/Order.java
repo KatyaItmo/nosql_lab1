@@ -1,48 +1,36 @@
 package com.fitness.nosql_lab1.objects;
 
 public class Order {
-    private String id;
-    private Status status;
-    private String username;
+    private String orderID;
+    private String status;
     private String clientName;
-    private String subscriptionType;
-    private int period;
+    private String idProduct;
     private int amount;
 
     public Order() {}
 
-    public Order(String id, Status status, String username, String clientName, String subscriptionType, int period, int amount) {
-        this.id = id;
+    public Order(String orderID, String status, String clientName, String idProduct, int amount) {
+        this.orderID = orderID;
         this.status = status;
-        this.username = username;
         this.clientName = clientName;
-        this.subscriptionType = subscriptionType;
-        this.period = period;
+        this.idProduct = idProduct;
         this.amount = amount;
     }
 
-    public int getAmount() {
-        return amount;
+    public String getOrderID() {
+        return orderID;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setOrderID(String orderID) {
+        this.orderID = orderID;
     }
 
-    public String getSubscriptionType() {
-        return subscriptionType;
+    public String getStatus() {
+        return status;
     }
 
-    public void setSubscriptionType(String subscriptionType) {
-        this.subscriptionType = subscriptionType;
-    }
-
-    public int getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(int period) {
-        this.period = period;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getClientName() {
@@ -53,27 +41,19 @@ public class Order {
         this.clientName = clientName;
     }
 
-    public String getId() {
-        return id;
+    public String getIdProduct() {
+        return idProduct;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setIdProduct(String idProduct) {
+        this.idProduct = idProduct;
     }
 
-    public Status getStatus() {
-        return status;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

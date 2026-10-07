@@ -1,7 +1,6 @@
 package com.fitness.nosql_lab1.rest;
 
 import com.fitness.nosql_lab1.dtos.UserDto;
-import com.fitness.nosql_lab1.objects.Role;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.EtcdService;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
+
     private final EtcdService etcdService;
     private final ObjectMapper objectMapper;
 
@@ -26,39 +26,36 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) throws Exception {
-        Role role = Role.SIMPLE;
-        if (userDto.getRole().equals("MODER")) {
-            role = Role.MODER;
-        }
-
+        String role = userDto.getRole();
         String username = userDto.getUsername();
         String password = userDto.getPassword();
 
-        if (checkUser("user:" + role + ":" + username)) {
-            String userID = UUID.randomUUID().toString();
-
+        if (checkUser("user:" + username)) {
             User user = new User(
                     role,
                     username,
                     password
             );
 
-            etcdService.put("user:" + role + ":" + username, objectMapper.writeValueAsString(user));
+            etcdService.put("user:" + username, objectMapper.writeValueAsString(user));
+
+            if ("moder".equals(user.getRole())) {
+                return ResponseEntity.ok("Зарегистрирован модератор " + username);
+            }
             return ResponseEntity.ok("Зарегистрирован пользователь " + username);
         }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Пользователь с логином " + username + " уже зарегистрирован");
-
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("Пользователь с логином " + username + " уже существует");
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserDto userDto) throws Exception {
-        String role = userDto.getRole();
         String username = userDto.getUsername();
         String password = userDto.getPassword();
 
-        if (!checkUser("user:" + role + ":" + username)) {
-            String jsonUser = etcdService.get("user:" + role + ":" + username);
+        if (!checkUser("user:" + username)) {
+            String jsonUser = etcdService.get("user:" + username);
             User user = objectMapper.readValue(jsonUser, User.class);
 
             if (user.getPassword().equals(password)) {
@@ -81,8 +78,12 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue(name = "SESSION") String session) throws Exception {
-        etcdService.delete("session:" + session);
+    public ResponseEntity<String> logout(
+            @CookieValue(name = "SESSION", required = false) String session
+    ) throws Exception {
+        if (session != null) {
+            etcdService.delete("session:" + session);
+        }
 
         ResponseCookie logoutCookie = ResponseCookie.from("SESSION", "")
                 .httpOnly(true)
@@ -92,11 +93,11 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, logoutCookie.toString())
-                .body("Выход выполнен");
+                .body("Вы вышли из аккаунта");
     }
 
-    private boolean checkUser(String username) throws Exception {
-        String user = etcdService.get(username);
+    private boolean checkUser(String key) throws Exception {
+        String user = etcdService.get(key);
         return (user == null);
     }
 }
