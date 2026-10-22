@@ -1,10 +1,90 @@
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import {useState} from "react";
+import LoginPage from "./components/LoginPage.jsx";
+import ProductCatalog from "./components/ProductCatalog.jsx";
+import ModerPage from "./components/ModerPage.jsx";
+import UserOrders from "./components/UserOrders.jsx";
+
 function App() {
-  return (
-      <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-        <h1>Фитнес-Клуб Трекер</h1>
-        <p>Готово к разработке интерфейса!</p>
-      </div>
-  )
+    const [currentPage, setCurrentPage] = useState("main");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState('none');
+
+    const [message, setMessage] = useState({text: '', type: ''});
+
+
+    const showMessage = (text, type) => {
+        setMessage({text, type});
+        setTimeout(() => {
+            setMessage({text: '', type: ''});
+        }, 3000);
+    };
+
+    const handleLoginSuccess = (role) => {
+        setIsLoggedIn(true);
+        setUserRole(role);
+        setCurrentPage("main");
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("/api/auth/logout", {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            const resultText = await response.text();
+
+            if (response.ok) {
+                showMessage(resultText, 'info');
+
+                setIsLoggedIn(false);
+                setUserRole("none");
+                setCurrentPage("login");
+
+            } else {
+                showMessage(resultText || 'ошибка сервера', 'error');
+            }
+        } catch (err) {
+            showMessage('не удалось связаться с сервером', 'error');
+        }
+    };
+
+    return (
+        <main>
+            <Header
+                isLoggedIn={isLoggedIn}
+                userRole={userRole}
+                switchPage={setCurrentPage}
+                onLogout={handleLogout}
+            />
+
+            {message.text && (
+                <div className={`message ${message.type}`}>
+                    {message.text}
+                </div>
+            )}
+
+            {currentPage === "login" ? (
+                <LoginPage
+                    onLoginSuccess={handleLoginSuccess}
+                    showMessage={showMessage}
+                />
+            ) : currentPage === "my-orders" ? (
+                <UserOrders />
+            ) : currentPage === "admin-tools" ? (
+                <ModerPage showMessage={showMessage} />
+            ) : (
+                <ProductCatalog
+                    userRole={userRole}
+                    showMessage={showMessage}
+                />
+            )}
+
+            <Footer />
+        </main>
+    );
 }
 
-export default App
+export default App;

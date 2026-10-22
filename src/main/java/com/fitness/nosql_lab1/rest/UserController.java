@@ -40,17 +40,18 @@ public class UserController {
             etcdService.put("user:" + username, objectMapper.writeValueAsString(user));
 
             if ("moder".equals(user.getRole())) {
-                return ResponseEntity.ok("Зарегистрирован модератор " + username);
+                return ResponseEntity.ok("зарегистрирован модератор " + username);
             }
-            return ResponseEntity.ok("Зарегистрирован пользователь " + username);
+            return ResponseEntity.ok("зарегистрирован пользователь " + username);
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("Пользователь с логином " + username + " уже существует");
+                .body("пользователь с логином " + username + " уже существует");
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserDto userDto) throws Exception {
+        String role = userDto.getRole();
         String username = userDto.getUsername();
         String password = userDto.getPassword();
 
@@ -59,6 +60,10 @@ public class UserController {
             User user = objectMapper.readValue(jsonUser, User.class);
 
             if (user.getPassword().equals(password)) {
+                if (user.getRole().equals("user") && role.equals("moder")) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("вы не можете зайти как модератор с данного аккаунта");
+                }
+
                 String sessionToken = UUID.randomUUID().toString();
                 etcdService.put("session:" + sessionToken, objectMapper.writeValueAsString(user));
 
@@ -66,15 +71,16 @@ public class UserController {
                         .httpOnly(true)
                         .path("/")
                         .maxAge(3600)
+                        .sameSite("Lax")
                         .build();
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                        .body("Выполнен вход под логином " + username);
+                        .body("выполнен вход под логином " + username);
             }
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный логин или пароль");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("неверный логин или пароль");
     }
 
     @PostMapping("/logout")
@@ -93,7 +99,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, logoutCookie.toString())
-                .body("Вы вышли из аккаунта");
+                .body("вы вышли из аккаунта");
     }
 
     private boolean checkUser(String key) throws Exception {

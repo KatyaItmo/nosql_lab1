@@ -31,9 +31,6 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProducts(
             @CookieValue(name = "SESSION", required = false) String session
     ) throws Exception {
-        if (!checkUserService.checkUser(session)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
 
         List<String> jsonList = etcdService.getList("product:");
         List<Product> productList = new ArrayList<>();
@@ -66,6 +63,6 @@ public class ProductController {
         String productJson = objectMapper.writeValueAsString(product);
         etcdService.put("product:" + productID, productJson);
 
-        return ResponseEntity.ok("Добавлен новый товар " + productID);
+        return ResponseEntity.ok("добавлен новый товар " + productID);
     }
 }

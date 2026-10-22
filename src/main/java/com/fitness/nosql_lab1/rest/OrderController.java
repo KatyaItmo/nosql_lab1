@@ -35,7 +35,7 @@ public class OrderController {
             @RequestBody OrderDto orderDto
     ) throws Exception {
         if (!checkUserService.checkUser(session)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Доступ запрещен");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("доступ запрещен");
         }
 
         String orderID = UUID.randomUUID().toString();
@@ -47,7 +47,6 @@ public class OrderController {
         Order order = new Order(
                 orderID,
                 status,
-                orderDto.getClientName(),
                 orderDto.getIdProduct(),
                 orderDto.getAmount()
         );
@@ -55,7 +54,7 @@ public class OrderController {
         String orderJson = objectMapper.writeValueAsString(order);
         etcdService.put("order:" + user.getUsername() + ":" + orderID, orderJson);
 
-        return ResponseEntity.ok("Заказ создан. Номер заказа: " + orderID);
+        return ResponseEntity.ok("заказ создан, номер заказа: " + orderID);
     }
 
     @GetMapping("/userOrders")
@@ -110,7 +109,7 @@ public class OrderController {
         String orderJson = etcdService.get(orderKey);
 
         if (orderJson == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Заказ не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("заказ не найден");
         }
 
         Order order = objectMapper.readValue(orderJson, Order.class);
@@ -118,6 +117,6 @@ public class OrderController {
 
         etcdService.put(orderKey, objectMapper.writeValueAsString(order));
 
-        return ResponseEntity.ok("Статус заказа " + order.getOrderID() + " успешно изменен");
+        return ResponseEntity.ok("статус заказа " + order.getOrderID() + " успешно изменен");
     }
 }

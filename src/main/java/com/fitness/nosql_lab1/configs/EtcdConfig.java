@@ -10,7 +10,7 @@ public class EtcdConfig {
 
     @Bean
     public Client etcdClient() {
-        return Client.builder().endpoints("http://localhost:2379").build();
+        return Client.builder().endpoints("http://etcd-db:2379").build();
     }
 
     @Bean
