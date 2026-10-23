@@ -54,10 +54,10 @@ function LoginPage({ onLoginSuccess, showMessage }) {
     };
 
     return (
-        <div>
+        <div className="page">
             <h2>{isRegistering ? 'регистрация' : 'вход'}</h2>
 
-            <form>
+            <form className="login-form">
                 <input
                     className="login-input"
                     type="text"

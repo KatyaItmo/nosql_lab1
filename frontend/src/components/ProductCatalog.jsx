@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 function ProductCatalog({ userRole, showMessage }) {
     const [products, setProducts] = useState([]);
     const [quantities, setQuantities] = useState({});
+    const [costs, setCosts] = useState({});
 
     const getProducts = async () => {
         try {
@@ -15,7 +16,7 @@ function ProductCatalog({ userRole, showMessage }) {
     };
 
     useEffect(() => {
-        getProducts();
+        getProducts().then(r => {});
     }, []);
 
     const handleIncrease = (productId) => {
@@ -24,6 +25,8 @@ function ProductCatalog({ userRole, showMessage }) {
             ...quantities,
             [productId]: currQuantity + 1
         });
+
+        handleCosts(productId, currQuantity + 1);
     };
 
     const handleDecrease = (productId) => {
@@ -34,7 +37,18 @@ function ProductCatalog({ userRole, showMessage }) {
                 ...quantities,
                 [productId]: currQuantity - 1
             });
+
+            handleCosts(productId, currQuantity - 1);
         }
+    };
+
+    const handleCosts = (productId, currQuantity) => {
+        const newCost = products.find(product => product.productID === productId).price * currQuantity;
+
+        setCosts({
+            ...costs,
+            [productId]: newCost
+        });
     };
 
     const handleOrder = async (productID) => {
@@ -46,7 +60,9 @@ function ProductCatalog({ userRole, showMessage }) {
 
         const order = {
             idProduct: productID,
-            amount: amount
+            nameProduct: products.find(product => product.productID === productID).name,
+            amount: amount,
+            cost: costs[productID]
         }
 
         try {
@@ -72,7 +88,7 @@ function ProductCatalog({ userRole, showMessage }) {
     };
 
     return (
-        <div>
+        <div className="page">
             <h2>каталог товаров</h2>
 
             <button
@@ -83,51 +99,55 @@ function ProductCatalog({ userRole, showMessage }) {
                 обновить список
             </button>
 
-            {products.length === 0 && (
-                <p className="big-p">у нас пока нет товаров, мы бомжи</p>
-            )}
+            <div className="list" id="products">
+                {products.length === 0 && (
+                    <p className="big-p">у нас пока нет товаров, мы бомжи</p>
+                )}
 
-            {products.length !== 0 && (products.map(product => (
-                <div key={product.productID} className="product-card">
-                    <h3>{product.name}</h3>
-                    <p className="prod-desc">{product.description}</p>
-                    <p className="prod-cost">Цена за шт. {product.cost} руб.</p>
+                {products.length !== 0 && (products.map(product => (
+                    <div key={product.productID} className="card" id="product-card">
+                        <h3>{product.name}</h3>
+                        <p className="prod-desc">{product.description}</p>
+                        <p className="prod-price">Цена за шт. {product.price} руб.</p>
 
-                    {userRole === 'moder' ? (
-                        <p className="mid-p">вы модератор</p>
-                    ) : userRole === 'user' ? (
-                        <div>
-                            <button
-                                className="ammount-prod-but"
-                                type="button"
-                                onClick={() => handleDecrease(product.productID)}
-                            >
-                                -
-                            </button>
+                        {userRole === 'moder' ? (
+                            <p className="mid-p">вы модератор</p>
+                        ) : userRole === 'user' ? (
+                            <div>
+                                <button
+                                    className="ammount-prod-but"
+                                    type="button"
+                                    onClick={() => handleDecrease(product.productID)}
+                                >
+                                    -
+                                </button>
 
-                            <p>{quantities[product.productID] || 0}</p>
+                                <p className="order-amount">{quantities[product.productID] || 0}</p>
 
-                            <button
-                                className="ammount-prod-but"
-                                type="button"
-                                onClick={() => handleIncrease(product.productID)}
-                            >
-                                +
-                            </button>
+                                <button
+                                    className="ammount-prod-but"
+                                    type="button"
+                                    onClick={() => handleIncrease(product.productID)}
+                                >
+                                    +
+                                </button>
 
-                            <button
-                                className="order-make-but"
-                                type="button"
-                                onClick={() => handleOrder(product.productID)}
-                            >
-                                заказать
-                            </button>
-                        </div>
-                    ) : (
-                        <p className="mid-p">войдите, чтобы сделать заказ</p>
-                    )}
-                </div>
-            )))}
+                                <p className="order-cost">всего {costs[product.productID] || 0} руб.</p>
+
+                                <button
+                                    className="order-make-but"
+                                    type="button"
+                                    onClick={() => handleOrder(product.productID)}
+                                >
+                                    заказать
+                                </button>
+                            </div>
+                        ) : (
+                            <p className="mid-p">войдите, чтобы сделать заказ</p>
+                        )}
+                    </div>
+                )))}
+            </div>
 
         </div>
     );

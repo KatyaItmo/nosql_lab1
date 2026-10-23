@@ -57,7 +57,7 @@ public class ProductController {
                 productID,
                 productDto.getName(),
                 productDto.getDescription(),
-                productDto.getCost()
+                productDto.getPrice()
         );
 
         String productJson = objectMapper.writeValueAsString(product);

@@ -4,13 +4,13 @@ public class Product {
     private String productID;
     private String name;
     private String description;
-    private int cost;
+    private int price;
 
-    public Product(String productID, String name, String description, int cost) {
+    public Product(String productID, String name, String description, int price) {
         this.productID = productID;
         this.name = name;
         this.description = description;
-        this.cost = cost;
+        this.price = price;
     }
 
     public Product() {}
@@ -39,11 +39,11 @@ public class Product {
         this.description = description;
     }
 
-    public int getCost() {
-        return cost;
+    public int getPrice() {
+        return price;
     }
 
-    public void setCost(int cost) {
-        this.cost = cost;
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

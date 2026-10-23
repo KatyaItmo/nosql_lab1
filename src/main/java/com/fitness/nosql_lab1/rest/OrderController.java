@@ -3,6 +3,7 @@ package com.fitness.nosql_lab1.rest;
 import com.fitness.nosql_lab1.dtos.ModerationDto;
 import com.fitness.nosql_lab1.dtos.OrderDto;
 import com.fitness.nosql_lab1.objects.Order;
+import com.fitness.nosql_lab1.objects.Product;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.CheckUserService;
 import com.fitness.nosql_lab1.services.EtcdService;
@@ -39,16 +40,19 @@ public class OrderController {
         }
 
         String orderID = UUID.randomUUID().toString();
-        String status = "new";
+        String status = "confirmed";
 
         String jsonUser = etcdService.get("session:" + session);
         User user = objectMapper.readValue(jsonUser, User.class);
 
         Order order = new Order(
+                user.getUsername(),
                 orderID,
                 status,
                 orderDto.getIdProduct(),
-                orderDto.getAmount()
+                orderDto.getNameProduct(),
+                orderDto.getAmount(),
+                orderDto.getCost()
         );
 
         String orderJson = objectMapper.writeValueAsString(order);

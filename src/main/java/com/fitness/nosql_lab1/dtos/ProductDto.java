@@ -3,7 +3,7 @@ package com.fitness.nosql_lab1.dtos;
 public class ProductDto {
     private String name;
     private String description;
-    private int cost;
+    private int price;
 
     public String getName() {
         return name;
@@ -21,11 +21,11 @@ public class ProductDto {
         this.description = description;
     }
 
-    public int getCost() {
-        return cost;
+    public int getPrice() {
+        return price;
     }
 
-    public void setCost(int cost) {
-        this.cost = cost;
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

@@ -72,7 +72,7 @@ function App() {
                     showMessage={showMessage}
                 />
             ) : currentPage === "my-orders" ? (
-                <UserOrders />
+                <UserOrders showMessage={showMessage} />
             ) : currentPage === "admin-tools" ? (
                 <ModerPage showMessage={showMessage} />
             ) : (
