@@ -1,20 +1,42 @@
 package com.fitness.nosql_lab1.objects;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "orders")
 public class Order {
-    private String username;
-    private String orderID;
+
+    @Id
+    @Column(nullable = false, unique = true)
+    private String id;
+
+    @Column(nullable = false)
     private String status;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
     private String idProduct;
+
+    @Column(nullable = false)
     private String nameProduct;
+
+    @Column(nullable = false)
     private int amount;
+
+    @Column(nullable = false)
     private long cost;
 
     public Order() {}
 
-    public Order(String username, String orderID, String status, String idProduct, String nameProduct, int amount, long cost) {
-        this.username = username;
-        this.orderID = orderID;
+    public Order(String id, String status, String username, String idProduct, String nameProduct, int amount, long cost) {
+        this.id = id;
         this.status = status;
+        this.username = username;
         this.idProduct = idProduct;
         this.nameProduct = nameProduct;
         this.amount = amount;
@@ -29,12 +51,12 @@ public class Order {
         this.username = username;
     }
 
-    public String getOrderID() {
-        return orderID;
+    public String getId() {
+        return id;
     }
 
-    public void setOrderID(String orderID) {
-        this.orderID = orderID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getStatus() {
@@ -53,20 +75,20 @@ public class Order {
         this.idProduct = idProduct;
     }
 
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
     public String getNameProduct() {
         return nameProduct;
     }
 
     public void setNameProduct(String nameProduct) {
         this.nameProduct = nameProduct;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public long getCost() {

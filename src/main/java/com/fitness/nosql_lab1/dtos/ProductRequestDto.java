@@ -1,6 +1,6 @@
 package com.fitness.nosql_lab1.dtos;
 
-public class ProductDto {
+public class ProductRequestDto {
     private String name;
     private String description;
     private int price;

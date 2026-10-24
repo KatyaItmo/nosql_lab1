@@ -1,68 +1,82 @@
 package com.fitness.nosql_lab1.rest;
 
-import com.fitness.nosql_lab1.dtos.ModerationDto;
-import com.fitness.nosql_lab1.dtos.OrderDto;
+import com.fitness.nosql_lab1.dtos.*;
 import com.fitness.nosql_lab1.objects.Order;
-import com.fitness.nosql_lab1.objects.Product;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.CheckUserService;
 import com.fitness.nosql_lab1.services.EtcdService;
+import com.fitness.nosql_lab1.services.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-
+    private final OrderService orderService;
     private final EtcdService etcdService;
     private final ObjectMapper objectMapper;
     private final CheckUserService checkUserService;
 
-    public OrderController(EtcdService etcdService, ObjectMapper objectMapper, CheckUserService checkUserService) {
+    public OrderController(OrderService orderService, EtcdService etcdService, ObjectMapper objectMapper, CheckUserService checkUserService) {
+        this.orderService = orderService;
         this.etcdService = etcdService;
         this.objectMapper = objectMapper;
         this.checkUserService = checkUserService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createOrder(
+    public ResponseEntity<OrderCreatedResponseDto> createOrder(
             @CookieValue(name = "SESSION", required = false) String session,
-            @RequestBody OrderDto orderDto
+            @RequestBody OrderRequestDto orderRequestDto
     ) throws Exception {
         if (!checkUserService.checkUser(session)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("доступ запрещен");
+            OrderCreatedResponseDto response = new OrderCreatedResponseDto(
+                    "",
+                    "доступ запрещен",
+                    0
+            );
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
-        String orderID = UUID.randomUUID().toString();
-        String status = "confirmed";
+        String idOrder = UUID.randomUUID().toString();
+        String status = "new";
+
+        Random random = new Random();
+        int confirmCode = random.nextInt(9000) + 1000;
+        etcdService.putTemporary("code:" + idOrder, Integer.toString(confirmCode), 180);
 
         String jsonUser = etcdService.get("session:" + session);
         User user = objectMapper.readValue(jsonUser, User.class);
 
         Order order = new Order(
-                user.getUsername(),
-                orderID,
+                idOrder,
                 status,
-                orderDto.getIdProduct(),
-                orderDto.getNameProduct(),
-                orderDto.getAmount(),
-                orderDto.getCost()
+                user.getUsername(),
+                orderRequestDto.getIdProduct(),
+                orderRequestDto.getNameProduct(),
+                orderRequestDto.getAmount(),
+                orderRequestDto.getCost()
         );
 
-        String orderJson = objectMapper.writeValueAsString(order);
-        etcdService.put("order:" + user.getUsername() + ":" + orderID, orderJson);
+        orderService.putOrder(order);
 
-        return ResponseEntity.ok("заказ создан, номер заказа: " + orderID);
+        OrderCreatedResponseDto response = new OrderCreatedResponseDto(
+                idOrder,
+                "заказ создан, номер заказа: " + idOrder,
+                confirmCode
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/userOrders")
-    public ResponseEntity<List<Order>> getUserOrders(
+    public ResponseEntity<List<OrderResponseDto>> getUserOrders(
             @CookieValue(name = "SESSION", required = false) String session
     ) throws Exception {
         if (!checkUserService.checkUser(session)) {
@@ -72,55 +86,104 @@ public class OrderController {
         String jsonUser = etcdService.get("session:" + session);
         User user = objectMapper.readValue(jsonUser, User.class);
 
-        List<String> jsonList = etcdService.getList("order:" + user.getUsername() + ":");
-        List<Order> ordersList = new ArrayList<>();
+        List<Order> orders = orderService.getUserOrders(user.getUsername());
 
-        for (String json : jsonList) {
-            ordersList.add(objectMapper.readValue(json, Order.class));
-        }
+        List<OrderResponseDto> ordersResponse = orders.stream()
+                .map(order -> new OrderResponseDto(
+                        order.getId(),
+                        order.getStatus(),
+                        order.getUsername(),
+                        order.getNameProduct(),
+                        order.getAmount(),
+                        order.getCost()
+                ))
+                .toList();
 
-        return ResponseEntity.ok(ordersList);
+        return ResponseEntity.ok(ordersResponse);
     }
 
     @GetMapping("/allOrders")
-    public ResponseEntity<List<Order>> getAllOrders(
+    public ResponseEntity<List<OrderResponseDto>> getAllOrders(
             @CookieValue(name = "SESSION", required = false) String session
     ) throws Exception {
         if (!checkUserService.checkModer(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<String> jsonList = etcdService.getList("order:");
-        List<Order> ordersList = new ArrayList<>();
+        List<Order> orders = orderService.getAllOrders();
 
-        for (String json : jsonList) {
-            ordersList.add(objectMapper.readValue(json, Order.class));
-        }
+        List<OrderResponseDto> ordersResponse = orders.stream()
+                .map(order -> new OrderResponseDto(
+                        order.getId(),
+                        order.getStatus(),
+                        order.getUsername(),
+                        order.getNameProduct(),
+                        order.getAmount(),
+                        order.getCost()
+                ))
+                .toList();
 
-        return ResponseEntity.ok(ordersList);
+        return ResponseEntity.ok(ordersResponse);
     }
 
     @PostMapping("/moderate")
     public ResponseEntity<String> moderateOrder(
             @CookieValue(name = "SESSION", required = false) String session,
-            @RequestBody ModerationDto moderationDto
+            @RequestBody StatusRequestDto statusRequestDto
     ) throws Exception {
         if (!checkUserService.checkModer(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        String orderKey = "order:" + moderationDto.getUsername() + ":" + moderationDto.getOrderID();
-        String orderJson = etcdService.get(orderKey);
+        String idOrder = statusRequestDto.getIdOrder();
 
-        if (orderJson == null) {
+        Order order = orderService.getOrder(idOrder);
+
+        if (order == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("заказ не найден");
         }
 
-        Order order = objectMapper.readValue(orderJson, Order.class);
-        order.setStatus(moderationDto.getNewStatus());
+        order.setStatus(statusRequestDto.getNewStatus());
+        orderService.putOrder(order);
 
-        etcdService.put(orderKey, objectMapper.writeValueAsString(order));
+        return ResponseEntity.ok("статус заказа " + idOrder + " успешно изменен");
+    }
 
-        return ResponseEntity.ok("статус заказа " + order.getOrderID() + " успешно изменен");
+    @PostMapping("/printCode")
+    public ResponseEntity<String> checkCode(
+            @CookieValue(name = "SESSION", required = false) String session,
+            @RequestBody CodeRequestDto codeRequestDto
+            ) throws Exception {
+        if (!checkUserService.checkUser(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String jsonUser = etcdService.get("session:" + session);
+        User user = objectMapper.readValue(jsonUser, User.class);
+
+        String idOrder = codeRequestDto.getIdOrder();
+
+        Order order = orderService.getOrder(idOrder);
+
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("заказ не найден");
+        }
+
+        String codeJson = etcdService.get("code:" + idOrder);
+        int code = objectMapper.readValue(codeJson, Integer.class);
+
+        String message;
+
+        if (codeRequestDto.getCode() == code) {
+            order.setStatus("confirmed");
+            message = "создание заказа подтвёрждено, ожидайте решение модератора";
+        } else {
+            order.setStatus("deleted");
+            message = "вы не подтвердили заказ";
+        }
+
+        orderService.putOrder(order);
+
+        return ResponseEntity.ok(message);
     }
 }

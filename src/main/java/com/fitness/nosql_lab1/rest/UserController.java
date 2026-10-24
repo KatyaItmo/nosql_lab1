@@ -1,8 +1,9 @@
 package com.fitness.nosql_lab1.rest;
 
-import com.fitness.nosql_lab1.dtos.UserDto;
+import com.fitness.nosql_lab1.dtos.UserRequestDto;
 import com.fitness.nosql_lab1.objects.User;
 import com.fitness.nosql_lab1.services.EtcdService;
+import com.fitness.nosql_lab1.services.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -15,29 +16,28 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
-
+    private final UserService userService;
     private final EtcdService etcdService;
     private final ObjectMapper objectMapper;
 
-    public UserController(EtcdService etcdService, ObjectMapper objectMapper) {
+    public UserController(UserService userService, EtcdService etcdService, ObjectMapper objectMapper) {
+        this.userService = userService;
         this.etcdService = etcdService;
         this.objectMapper = objectMapper;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) throws Exception {
-        String role = userDto.getRole();
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
+    public ResponseEntity<String> registerUser(@RequestBody UserRequestDto userRequestDto) {
+        String username = userRequestDto.getUsername();
 
-        if (checkUser("user:" + username)) {
+        if (checkUser(username)) {
             User user = new User(
-                    role,
                     username,
-                    password
+                    userRequestDto.getPassword(),
+                    userRequestDto.getRole()
             );
 
-            etcdService.put("user:" + username, objectMapper.writeValueAsString(user));
+            userService.putUser(user);
 
             if ("moder".equals(user.getRole())) {
                 return ResponseEntity.ok("зарегистрирован модератор " + username);
@@ -46,26 +46,30 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("пользователь с логином " + username + " уже существует");
+                .body("пользователь " + username + " уже существует");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserDto userDto) throws Exception {
-        String role = userDto.getRole();
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
+    public ResponseEntity<String> login(@RequestBody UserRequestDto userRequestDto) throws Exception {
+        String username = userRequestDto.getUsername();
+        if (!checkUser(username)) {
+            User user = userService.getUser(username);
 
-        if (!checkUser("user:" + username)) {
-            String jsonUser = etcdService.get("user:" + username);
-            User user = objectMapper.readValue(jsonUser, User.class);
+            String keyCount = "counter:" + username;
 
-            if (user.getPassword().equals(password)) {
-                if (user.getRole().equals("user") && role.equals("moder")) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("вы не можете зайти как модератор с данного аккаунта");
+            if (user.getPassword().equals(userRequestDto.getPassword())) {
+                if (user.getRole().equals("user") && userRequestDto.getRole().equals("moder")) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("вы не модератор");
+                }
+
+                if (etcdService.processLoginAttempt(keyCount, true) == 3) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("вы превысили число попыток входа");
                 }
 
                 String sessionToken = UUID.randomUUID().toString();
-                etcdService.put("session:" + sessionToken, objectMapper.writeValueAsString(user));
+
+                String userJson = objectMapper.writeValueAsString(user);
+                etcdService.putTemporary("session:" + sessionToken, userJson, 3600);
 
                 ResponseCookie cookie = ResponseCookie.from("SESSION", sessionToken)
                         .httpOnly(true)
@@ -78,9 +82,15 @@ public class UserController {
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body("выполнен вход под логином " + username);
             }
+
+            if (etcdService.processLoginAttempt(keyCount, false) == 3) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("вы превысили число попыток входа");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("неверный логин или пароль");
+            }
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("неверный логин или пароль");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("нет такого пользователя");
     }
 
     @PostMapping("/logout")
@@ -102,8 +112,8 @@ public class UserController {
                 .body("вы вышли из аккаунта");
     }
 
-    private boolean checkUser(String key) throws Exception {
-        String user = etcdService.get(key);
+    private boolean checkUser(String username) {
+        User user = userService.getUser(username);
         return (user == null);
     }
 }

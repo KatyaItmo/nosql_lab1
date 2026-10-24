@@ -1,27 +1,29 @@
 package com.fitness.nosql_lab1.rest;
 
-import com.fitness.nosql_lab1.dtos.ProductDto;
+import com.fitness.nosql_lab1.dtos.ProductRequestDto;
 import com.fitness.nosql_lab1.objects.Product;
 import com.fitness.nosql_lab1.services.CheckUserService;
 import com.fitness.nosql_lab1.services.EtcdService;
+import com.fitness.nosql_lab1.services.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-
+    private final ProductService productService;
     private final EtcdService etcdService;
     private final ObjectMapper objectMapper;
     private final CheckUserService checkUserService;
 
-    public ProductController(EtcdService etcdService, ObjectMapper objectMapper, CheckUserService checkUserService) {
+    public ProductController(ProductService productService, EtcdService etcdService, ObjectMapper objectMapper, CheckUserService checkUserService) {
+        this.productService = productService;
         this.etcdService = etcdService;
         this.objectMapper = objectMapper;
         this.checkUserService = checkUserService;
@@ -32,37 +34,41 @@ public class ProductController {
             @CookieValue(name = "SESSION", required = false) String session
     ) throws Exception {
 
-        List<String> jsonList = etcdService.getList("product:");
-        List<Product> productList = new ArrayList<>();
+        String productsJson = etcdService.get("cache:products");
+        List<Product> products;
+        if (productsJson == null) {
+            products = productService.getAllProducts();
 
-        for (String json : jsonList) {
-            productList.add(objectMapper.readValue(json, Product.class));
+            productsJson = objectMapper.writeValueAsString(products);
+            etcdService.put("cache:products", productsJson);
+        } else {
+            products = objectMapper.readValue(productsJson, new TypeReference<List<Product>>() {});
         }
 
-        return ResponseEntity.ok(productList);
+        return ResponseEntity.ok(products);
     }
 
     @PostMapping("/create")
     public ResponseEntity<String> createProduct(
             @CookieValue(name = "SESSION", required = false) String session,
-            @RequestBody ProductDto productDto
+            @RequestBody ProductRequestDto productRequestDto
     ) throws Exception {
         if (!checkUserService.checkModer(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        String productID = UUID.randomUUID().toString();
+        String idProduct = UUID.randomUUID().toString();
 
         Product product = new Product(
-                productID,
-                productDto.getName(),
-                productDto.getDescription(),
-                productDto.getPrice()
+                idProduct,
+                productRequestDto.getName(),
+                productRequestDto.getDescription(),
+                productRequestDto.getPrice()
         );
 
-        String productJson = objectMapper.writeValueAsString(product);
-        etcdService.put("product:" + productID, productJson);
+        productService.putProduct(product);
+        etcdService.delete("cache:products");
 
-        return ResponseEntity.ok("добавлен новый товар " + productID);
+        return ResponseEntity.ok("добавлен новый товар " + idProduct);
     }
 }

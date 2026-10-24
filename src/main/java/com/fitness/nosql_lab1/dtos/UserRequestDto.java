@@ -1,9 +1,9 @@
 package com.fitness.nosql_lab1.dtos;
 
-public class UserDto {
-    private String role;
+public class UserRequestDto {
     private String username;
     private String password;
+    private String role;
 
     public String getUsername() {
         return username;
