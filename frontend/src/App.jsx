@@ -74,7 +74,7 @@ function App() {
                         showMessage={showMessage}
                     />
                 ) : currentPage === "cart" ? (
-                    <CartPage />
+                    <CartPage showMessage={showMessage} switchPage={setCurrentPage} />
                 ) : currentPage === "my-orders" ? (
                     <UserOrders showMessage={showMessage} />
                 ) : currentPage === "moder-tools" ? (

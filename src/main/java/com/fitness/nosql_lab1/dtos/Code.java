@@ -2,12 +2,14 @@ package com.fitness.nosql_lab1.dtos;
 
 public class Code {
     private String message;
+    private String orderId;
     private int code;
 
     public Code() {}
 
-    public Code(String message, int code) {
+    public Code(String message, String orderId, int code) {
         this.message = message;
+        this.orderId = orderId;
         this.code = code;
     }
 
@@ -17,6 +19,14 @@ public class Code {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public int getCode() {

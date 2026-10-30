@@ -46,7 +46,7 @@ public class MessageService {
     }
 
     public ResponseEntity<List<MessageDto>> getUserMessage(String sessionToken) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "user")) {
+        if (!sessionService.checkUser(sessionToken, "allUser")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 

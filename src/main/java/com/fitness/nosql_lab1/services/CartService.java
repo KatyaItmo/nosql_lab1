@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class CartService {
@@ -25,7 +22,7 @@ public class CartService {
     }
 
     public ResponseEntity<String> addItem(String sessionToken, CartItem item) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("работа с корзиной запрещена");
         }
 
@@ -36,6 +33,10 @@ public class CartService {
 
         if (cart.get(productId) != null) {
             item.setAmount(item.getAmount() + cart.get(productId).getAmount());
+            item.setCost(item.getCost() + cart.get(productId).getCost());
+        } else {
+            String itemId = UUID.randomUUID().toString();
+            item.setId(itemId);
         }
         cart.put(productId, item);
 
@@ -47,7 +48,7 @@ public class CartService {
 
 
     public ResponseEntity<String> deleteItem(String sessionToken, String productId) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("работа с корзиной запрещена");
         }
 
@@ -59,12 +60,12 @@ public class CartService {
         jsonMap = objectMapper.writeValueAsString(cart);
         etcdService.putTemporary("cart:" + sessionToken, jsonMap, 1800);
 
-        return ResponseEntity.ok("товар удален из корзины");
+        return ResponseEntity.ok("товар убран из корзины");
     }
 
 
     public ResponseEntity<String> clearCart(String sessionToken) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("работа с корзиной запрещена");
         }
 
@@ -91,7 +92,7 @@ public class CartService {
 
 
     public List<CartItem> getList(String sessionToken) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return null;
         }
 

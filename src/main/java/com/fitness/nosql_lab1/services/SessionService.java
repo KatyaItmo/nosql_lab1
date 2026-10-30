@@ -54,7 +54,7 @@ public class SessionService {
             return false;
         }
 
-        if (role.equals("user")) {
+        if (role.equals("allUser")) {
             return true;
         }
 

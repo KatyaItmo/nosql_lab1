@@ -51,6 +51,55 @@ function ProductCatalog({ userRole, showMessage }) {
         });
     };
 
+    const handleAddItem = async (productId) => {
+        if (!quantities[productId] || quantities[productId] === 0) {
+            showMessage('вы выбрали 0 товаров!', 'error')
+            return;
+        }
+
+        const product = products.find(product => product.id === productId);
+
+        const data = {
+            product,
+            amount: quantities[productId],
+            cost: costs[productId]
+        }
+
+        try {
+            const response = await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+
+            const resultText = await response.text();
+
+            if (response.ok) {
+                showMessage(resultText, 'info');
+                resetStats(productId);
+            } else {
+                showMessage(resultText || 'ошибка сервера', 'error');
+            }
+        } catch(err) {
+            showMessage('не удалось отправить данные', 'error');
+        }
+    }
+
+    const resetStats = (productId) => {
+        setQuantities({
+            ...quantities,
+            [productId]: 0
+        });
+
+        setCosts({
+            ...costs,
+            [productId]: 0
+        });
+    }
+
     return (
         <div>
             <h2>каталог товаров</h2>
@@ -95,7 +144,7 @@ function ProductCatalog({ userRole, showMessage }) {
 
                                 <button
                                     type="button"
-
+                                    onClick={() => handleAddItem(product.id)}
                                 >
                                     добавить в корзину
                                 </button>

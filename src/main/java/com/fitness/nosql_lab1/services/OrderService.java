@@ -21,19 +21,22 @@ public class OrderService {
     private final EtcdService etcdService;
     private final ObjectMapper objectMapper;
     private final MessageService messageService;
+    private final CartService cartService;
 
-    public OrderService(OrderRepository orderRepository, SessionService sessionService, EtcdService etcdService, ObjectMapper objectMapper, MessageService messageService) {
+    public OrderService(OrderRepository orderRepository, SessionService sessionService, EtcdService etcdService, ObjectMapper objectMapper, MessageService messageService, CartService cartService) {
         this.orderRepository = orderRepository;
         this.sessionService = sessionService;
         this.etcdService = etcdService;
         this.objectMapper = objectMapper;
         this.messageService = messageService;
+        this.cartService = cartService;
     }
 
     public ResponseEntity<Code> createOrder(String sessionToken, OrderDto orderDto) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             Code code = new Code(
                     "вы не могаете сделать заказ",
+                    "",
                     0
             );
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(code);
@@ -64,6 +67,7 @@ public class OrderService {
         order.setOrderList(items);
 
         orderRepository.save(order);
+        cartService.delete(sessionToken);
 
         messageService.makeNewsletter(user, "СОЗДАН ЗАКАЗ", "вы создали новый заказ " + orderId + ", подтвердите его в течение 3 минут");
 
@@ -73,6 +77,7 @@ public class OrderService {
 
         Code code = new Code(
                 "создан заказ " + orderId,
+                orderId,
                 confirmCode
         );
         return ResponseEntity.ok(code);
@@ -80,7 +85,7 @@ public class OrderService {
 
 
     public ResponseEntity<List<OrderDto>> getUserOrders(String sessionToken) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -101,7 +106,7 @@ public class OrderService {
 
 
     public ResponseEntity<String> confirmOrder(String sessionToken, Confirmation confirmation) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -116,7 +121,7 @@ public class OrderService {
         if (confirmation.getCode() == 198467) {
             changeStatus(confirmation.getOrderId(), "not_confirmed");
             messageService.makeNewsletter(user, "ИЗМЕНЕНИЕ СТАТУСА ЗАКАЗА", "заказ " + confirmation.getOrderId() + " перешел в статус \"не подтвержден\"");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("заказ " + confirmation.getOrderId() + " перешел в статус \"не подтвержден\"");
+            return ResponseEntity.ok("заказ " + confirmation.getOrderId() + " перешел в статус \"не подтвержден\"");
         }
 
         String codeJson = etcdService.get("code:" + confirmation.getOrderId());
@@ -161,9 +166,10 @@ public class OrderService {
 
 
     public ResponseEntity<Code> repeatOrder(String sessionToken, String oldOrderId) throws Exception {
-        if (!sessionService.checkUser(sessionToken, "onlyUser")) {
+        if (!sessionService.checkUser(sessionToken, "user")) {
             Code code = new Code(
                     "вы не могаете сделать заказ",
+                    "",
                     0
             );
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(code);
@@ -173,6 +179,7 @@ public class OrderService {
         if (oldOrder == null) {
             Code code = new Code(
                     "к сожалению, нельзя повторить данный заказ",
+                    "",
                     0
             );
             return ResponseEntity.status(HttpStatus.CONFLICT).body(code);
@@ -181,6 +188,7 @@ public class OrderService {
         if (oldOrder.getUser().equals(sessionService.getUser(sessionToken))) {
             Code code = new Code(
                     "действие запрещено",
+                    "",
                     0
             );
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(code);
@@ -207,6 +215,7 @@ public class OrderService {
 
         Code code = new Code(
                 "создан заказ " + newOrderId,
+                newOrderId,
                 confirmCode
         );
         return ResponseEntity.ok(code);
