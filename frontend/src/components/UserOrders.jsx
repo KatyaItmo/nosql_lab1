@@ -14,33 +14,55 @@ function UserOrders({ showMessage }) {
     };
 
     useEffect(() => {
-        getOrders();
+        getOrders().then(r => {});
     }, []);
 
     return (
-        <div className="page">
+        <div>
             <h2>мои заказы</h2>
 
             <button
-                className="simple-button"
                 type="button"
                 onClick={getOrders}
             >
                 обновить
             </button>
 
-            <div className="list">
+            <div>
                 {userOrders.length === 0 && (
-                    <p className="big-p">вы еще ничего у нас не заказывали</p>
+                    <p>вы еще ничего у нас не заказывали</p>
                 )}
 
                 {userOrders.length !== 0 && (userOrders.map(order => (
-                    <div key={order.orderID} className="card" id="order-card">
-                        <h3>заказ {order.orderID}</h3>
-                        <p className="order-field" id="order-status">статус заказа: {order.status}</p>
-                        <p className="order-field">товар: {order.nameProduct}</p>
-                        <p className="order-field">количество: {order.amount}</p>
-                        <p className="order-field">стоимость: {order.cost}</p>
+                    <div key={order.orderID}>
+                        <div>
+                            <h3>заказ {order.id}</h3>
+                            <p>статус заказа: {order.status}</p>
+                            <p>сумма: {order.cost}</p>
+                        </div>
+
+                        <div>
+                            <h3>товары в заказе</h3>
+
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>товар</th>
+                                    <th>цена</th>
+                                    <th>количество</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {order.orderList.map(item => (
+                                    <tr key={item.productId}>
+                                        <td>{item.productName}</td>
+                                        <td>{item.productPrice}</td>
+                                        <td>{item.amount}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )))}
             </div>
