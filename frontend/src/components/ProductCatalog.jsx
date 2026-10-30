@@ -7,7 +7,10 @@ function ProductCatalog({ userRole, showMessage }) {
 
     const getProducts = async () => {
         try {
-            const response = await fetch('/api/products', {method: 'GET'});
+            const response = await fetch('/api/products', {
+                method: 'GET',
+                credentials: 'include'
+            });
             const data = await response.json();
             setProducts(data);
         } catch (err) {

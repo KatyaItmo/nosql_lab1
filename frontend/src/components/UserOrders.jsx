@@ -5,7 +5,10 @@ function UserOrders({ showMessage }) {
 
     const getOrders = async () => {
         try {
-            const response = await fetch('/api/orders/userOrders', {method: 'GET'});
+            const response = await fetch('/api/orders/userOrders', {
+                method: 'GET',
+                credentials: 'include'
+            });
             const data = await response.json();
             setUserOrders(data);
         } catch (err) {
@@ -34,11 +37,20 @@ function UserOrders({ showMessage }) {
                 )}
 
                 {userOrders.length !== 0 && (userOrders.map(order => (
-                    <div key={order.orderID}>
+                    <div key={order.id}>
                         <div>
                             <h3>заказ {order.id}</h3>
                             <p>статус заказа: {order.status}</p>
                             <p>сумма: {order.cost}</p>
+                        </div>
+
+                        <div>
+                            <button
+                                type="button"
+
+                            >
+                                повторить заказ
+                            </button>
                         </div>
 
                         <div>

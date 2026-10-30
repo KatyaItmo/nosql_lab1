@@ -9,7 +9,10 @@ function CartPage({ showMessage }) {
 
     const getCart = async () => {
         try {
-            const response = await fetch('/api/cart', {method: 'GET'});
+            const response = await fetch('/api/cart', {
+                method: 'GET',
+                credentials: 'include'
+            });
             const data = await response.json();
             if (data === null) {
                 showMessage('получение данных о корзине запрещено', 'error');
@@ -26,7 +29,10 @@ function CartPage({ showMessage }) {
 
     const handleDeleteItem = async (productId) => {
         try {
-            const response = await fetch(`/api/cart/delete/${productId}`, {method: 'GET'});
+            const response = await fetch(`/api/cart/delete/${productId}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
             const resultText = await response.text();
 
             if (response.ok) {
@@ -42,7 +48,10 @@ function CartPage({ showMessage }) {
 
     const handleClear = async () => {
         try {
-            const response = await fetch('/api/cart/clear', {method: 'GET'});
+            const response = await fetch('/api/cart/clear', {
+                method: 'GET',
+                credentials: 'include'
+            });
             const resultText = await response.text();
 
             if (response.ok) {
