@@ -5,6 +5,7 @@ import LoginPage from "./components/LoginPage.jsx";
 import ProductCatalog from "./components/ProductCatalog.jsx";
 import ModerPage from "./components/ModerPage.jsx";
 import UserOrders from "./components/UserOrders.jsx";
+import CartPage from "./components/CartPage.jsx";
 
 function App() {
     const [currentPage, setCurrentPage] = useState("main");
@@ -18,7 +19,7 @@ function App() {
         setMessage({text, type});
         setTimeout(() => {
             setMessage({text: '', type: ''});
-        }, 3000);
+        }, 4000);
     };
 
     const handleLoginSuccess = (role) => {
@@ -52,7 +53,7 @@ function App() {
     };
 
     return (
-        <main>
+        <div>
             <Header
                 isLoggedIn={isLoggedIn}
                 userRole={userRole}
@@ -66,24 +67,28 @@ function App() {
                 </div>
             )}
 
-            {currentPage === "login" ? (
-                <LoginPage
-                    onLoginSuccess={handleLoginSuccess}
-                    showMessage={showMessage}
-                />
-            ) : currentPage === "my-orders" ? (
-                <UserOrders showMessage={showMessage} />
-            ) : currentPage === "admin-tools" ? (
-                <ModerPage showMessage={showMessage} />
-            ) : (
-                <ProductCatalog
-                    userRole={userRole}
-                    showMessage={showMessage}
-                />
-            )}
+            <main>
+                {currentPage === "login" ? (
+                    <LoginPage
+                        onLoginSuccess={handleLoginSuccess}
+                        showMessage={showMessage}
+                    />
+                ) : currentPage === "cart" ? (
+                    <CartPage />
+                ) : currentPage === "my-orders" ? (
+                    <UserOrders showMessage={showMessage} />
+                ) : currentPage === "moder-tools" ? (
+                    <ModerPage showMessage={showMessage} />
+                ) : (
+                    <ProductCatalog
+                        userRole={userRole}
+                        showMessage={showMessage}
+                    />
+                )}
+            </main>
 
             <Footer />
-        </main>
+        </div>
     );
 }
 

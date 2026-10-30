@@ -1,9 +1,8 @@
 package com.fitness.nosql_lab1.objects;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -16,39 +15,31 @@ public class Order {
     @Column(nullable = false)
     private String status;
 
-    @Column(nullable = false)
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false)
-    private String idProduct;
-
-    @Column(nullable = false)
-    private String nameProduct;
-
-    @Column(nullable = false)
-    private int amount;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderList;
 
     @Column(nullable = false)
     private long cost;
 
     public Order() {}
 
-    public Order(String id, String status, String username, String idProduct, String nameProduct, int amount, long cost) {
+    public Order(String id, String status, User user, List<OrderItem> orderList, long cost) {
         this.id = id;
         this.status = status;
-        this.username = username;
-        this.idProduct = idProduct;
-        this.nameProduct = nameProduct;
-        this.amount = amount;
+        this.user = user;
+        this.orderList = orderList;
         this.cost = cost;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public Order(String id, String status, User user, long cost) {
+        this.id = id;
+        this.status = status;
+        this.user = user;
+        this.cost = cost;
     }
 
     public String getId() {
@@ -67,28 +58,20 @@ public class Order {
         this.status = status;
     }
 
-    public String getIdProduct() {
-        return idProduct;
+    public User getUser() {
+        return user;
     }
 
-    public void setIdProduct(String idProduct) {
-        this.idProduct = idProduct;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getNameProduct() {
-        return nameProduct;
+    public List<OrderItem> getOrderList() {
+        return orderList;
     }
 
-    public void setNameProduct(String nameProduct) {
-        this.nameProduct = nameProduct;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setOrderList(List<OrderItem> orderList) {
+        this.orderList = orderList;
     }
 
     public long getCost() {

@@ -1,21 +1,26 @@
 package com.fitness.nosql_lab1.dtos;
 
-public class OrderResponseDto {
+import java.util.List;
+
+public class OrderDto {
     private String id;
     private String status;
     private String username;
-    private String nameProduct;
-    private int amount;
+    private List<OrderItemDto> orderList;
     private long cost;
 
-    public OrderResponseDto() {}
+    public OrderDto() {}
 
-    public OrderResponseDto(String id, String status, String username, String nameProduct, int amount, long cost) {
+    public OrderDto(String id, String status, String username, List<OrderItemDto> orderList, long cost) {
         this.id = id;
         this.status = status;
         this.username = username;
-        this.nameProduct = nameProduct;
-        this.amount = amount;
+        this.orderList = orderList;
+        this.cost = cost;
+    }
+
+    public OrderDto(List<OrderItemDto> orderList, long cost) {
+        this.orderList = orderList;
         this.cost = cost;
     }
 
@@ -43,20 +48,12 @@ public class OrderResponseDto {
         this.username = username;
     }
 
-    public String getNameProduct() {
-        return nameProduct;
+    public List<OrderItemDto> getOrderList() {
+        return orderList;
     }
 
-    public void setNameProduct(String nameProduct) {
-        this.nameProduct = nameProduct;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setOrderList(List<OrderItemDto> orderList) {
+        this.orderList = orderList;
     }
 
     public long getCost() {

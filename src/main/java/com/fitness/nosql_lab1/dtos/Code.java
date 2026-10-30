@@ -1,24 +1,14 @@
 package com.fitness.nosql_lab1.dtos;
 
-public class OrderCreatedResponseDto {
-    private String idOrder;
+public class Code {
     private String message;
     private int code;
 
-    public OrderCreatedResponseDto() {}
+    public Code() {}
 
-    public OrderCreatedResponseDto(String idOrder, String message, int code) {
-        this.idOrder = idOrder;
+    public Code(String message, int code) {
         this.message = message;
         this.code = code;
-    }
-
-    public String getIdOrder() {
-        return idOrder;
-    }
-
-    public void setIdOrder(String idOrder) {
-        this.idOrder = idOrder;
     }
 
     public String getMessage() {

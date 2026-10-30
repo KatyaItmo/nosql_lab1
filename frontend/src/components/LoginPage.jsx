@@ -3,8 +3,9 @@ import {useState} from "react";
 function LoginPage({ onLoginSuccess, showMessage }) {
     const [isRegistering, setIsRegistering] = useState(false);
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [secreteCode, setSecreteCode] = useState('');
     const [isModer, setIsModer] = useState(false);
 
 
@@ -20,6 +21,13 @@ function LoginPage({ onLoginSuccess, showMessage }) {
             password: password
         }
 
+        const specialFormData = {
+            role: 'moder',
+            username: username,
+            password: password,
+            secreteCode: secreteCode
+        }
+
         const url = isRegistering
             ? '/api/auth/register'
             : '/api/auth/login';
@@ -31,7 +39,7 @@ function LoginPage({ onLoginSuccess, showMessage }) {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify(formData)
+                body: JSON.stringify(isRegistering && isModer ? specialFormData : formData)
             });
 
             const resultText = await response.text();
@@ -54,12 +62,11 @@ function LoginPage({ onLoginSuccess, showMessage }) {
     };
 
     return (
-        <div className="page">
+        <div>
             <h2>{isRegistering ? 'регистрация' : 'вход'}</h2>
 
-            <form className="login-form">
+            <form>
                 <input
-                    className="login-input"
                     type="text"
                     placeholder="введите логин"
                     value={username}
@@ -67,7 +74,6 @@ function LoginPage({ onLoginSuccess, showMessage }) {
                 />
 
                 <input
-                    className="login-input"
                     type="password"
                     placeholder="введите пароль"
                     value={password}
@@ -80,11 +86,19 @@ function LoginPage({ onLoginSuccess, showMessage }) {
                         checked={isModer}
                         onChange={(e) => setIsModer(e.target.checked)}
                     />
-                    я модератор
+                    как модератор
                 </label>
 
+                {isModer && isRegistering && (
+                    <input
+                        type="password"
+                        placeholder="введите код модератора"
+                        value={secreteCode}
+                        onChange={(e) => setSecreteCode(e.target.value)}
+                    />
+                )}
+
                 <button
-                    className="simple-button"
                     type="button"
                     onClick={() => submitForm()}
                 >
@@ -92,7 +106,7 @@ function LoginPage({ onLoginSuccess, showMessage }) {
                 </button>
             </form>
 
-            <button className="login-mode-button" type="button" onClick={() => setIsRegistering(!isRegistering)}>
+            <button type="button" onClick={() => setIsRegistering(!isRegistering)}>
                 {isRegistering ? 'есть аккаунт? войти' : 'нет аккаунта? зарегистрироваться'}
             </button>
         </div>

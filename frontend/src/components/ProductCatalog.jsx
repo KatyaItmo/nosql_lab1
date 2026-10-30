@@ -11,7 +11,7 @@ function ProductCatalog({ userRole, showMessage }) {
             const data = await response.json();
             setProducts(data);
         } catch (err) {
-            showMessage('не удалось связаться с сервером', 'error');
+            showMessage('ошибка получения данных с сервера', 'error');
         }
     };
 
@@ -43,7 +43,7 @@ function ProductCatalog({ userRole, showMessage }) {
     };
 
     const handleCosts = (productId, currQuantity) => {
-        const newCost = products.find(product => product.productID === productId).price * currQuantity;
+        const newCost = products.find(product => product.id === productId).price * currQuantity;
 
         setCosts({
             ...costs,
@@ -51,99 +51,59 @@ function ProductCatalog({ userRole, showMessage }) {
         });
     };
 
-    const handleOrder = async (productID) => {
-        const amount = quantities[productID] || 0;
-        if (amount === 0) {
-            showMessage('нельзя заказать 0 товаров', 'error');
-            return;
-        }
-
-        const order = {
-            idProduct: productID,
-            nameProduct: products.find(product => product.productID === productID).name,
-            amount: amount,
-            cost: costs[productID]
-        }
-
-        try {
-            const response = await fetch('/api/orders/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(order)
-            });
-
-            const resultText = await response.text();
-
-            if (response.ok) {
-                showMessage(resultText, 'info');
-            } else {
-                showMessage(resultText || 'ошибка сервера', 'error');
-            }
-        } catch (err) {
-            showMessage('не удалось связаться с сервером', 'error');
-        }
-    };
-
     return (
-        <div className="page">
+        <div>
             <h2>каталог товаров</h2>
 
             <button
-                className="simple-button"
                 type="button"
                 onClick={getProducts}
             >
                 обновить список
             </button>
 
-            <div className="list" id="products">
+            <div>
                 {products.length === 0 && (
-                    <p className="big-p">у нас пока нет товаров, мы бомжи</p>
+                    <p>у нас пока нет товаров, мы бомжи</p>
                 )}
 
                 {products.length !== 0 && (products.map(product => (
-                    <div key={product.productID} className="card" id="product-card">
+                    <div key={product.id} >
                         <h3>{product.name}</h3>
-                        <p className="prod-desc">{product.description}</p>
-                        <p className="prod-price">Цена за шт. {product.price} руб.</p>
+                        <p>{product.description}</p>
+                        <p>Цена за шт. {product.price} руб.</p>
 
-                        {userRole === 'moder' ? (
-                            <p className="mid-p">вы модератор</p>
-                        ) : userRole === 'user' ? (
+                        {userRole === 'user' ? (
                             <div>
                                 <button
-                                    className="ammount-prod-but"
                                     type="button"
-                                    onClick={() => handleDecrease(product.productID)}
+                                    onClick={() => handleDecrease(product.id)}
                                 >
                                     -
                                 </button>
 
-                                <p className="order-amount">{quantities[product.productID] || 0}</p>
+                                <p>{quantities[product.id] || 0}</p>
 
                                 <button
-                                    className="ammount-prod-but"
                                     type="button"
-                                    onClick={() => handleIncrease(product.productID)}
+                                    onClick={() => handleIncrease(product.id)}
                                 >
                                     +
                                 </button>
 
-                                <p className="order-cost">всего {costs[product.productID] || 0} руб.</p>
+                                <p>Сумма: {costs[product.id] || 0} руб.</p>
 
                                 <button
-                                    className="order-make-but"
                                     type="button"
-                                    onClick={() => handleOrder(product.productID)}
+
                                 >
-                                    заказать
+                                    добавить в корзину
                                 </button>
                             </div>
-                        ) : (
-                            <p className="mid-p">войдите, чтобы сделать заказ</p>
+                        ) : userRole === 'moder' ? (
+                            <div></div>
+                        ): (
+                            <p>войдите, чтобы сделать заказ</p>
                         )}
                     </div>
                 )))}

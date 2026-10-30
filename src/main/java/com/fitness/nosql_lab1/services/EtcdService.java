@@ -63,25 +63,25 @@ public class EtcdService {
         ).get();
     }
 
-    public int processLoginAttempt(String key, boolean isSuccess) throws Exception {
+    public int processCounter(String key, int time, int limit, boolean reset) throws Exception {
         while (true) {
             String stringValue = get(key);
             int currValue = stringValue == null ? 0 : Integer.parseInt(stringValue);
 
-            if (currValue == 3) {
-                return 3;
+            if (currValue == limit) {
+                return limit;
             }
 
-            if (isSuccess) {
+            if (reset) {
                 if (!(currValue == 0)) {
                     delete(key);
                 }
-                return currValue;
+                return 0;
             }
 
             int newValue = currValue + 1;
-            long leaseId = leaseClient.grant(60).get().getID();
-            PutOption putOpt = PutOption.builder().withLeaseId(leaseId).build();
+            long leaseId = leaseClient.grant(time).get().getID();
+            PutOption putOption = PutOption.builder().withLeaseId(leaseId).build();
 
             boolean success;
             ByteSequence byteKey = ByteSequence.from(key.getBytes(StandardCharsets.UTF_8));
@@ -89,12 +89,12 @@ public class EtcdService {
             if (currValue == 0) {
                 success = kvClient.txn()
                         .If(new Cmp(byteKey, Cmp.Op.EQUAL, CmpTarget.version(0)))
-                        .Then(Op.put(byteKey, ByteSequence.from("1".getBytes(StandardCharsets.UTF_8)), putOpt))
+                        .Then(Op.put(byteKey, ByteSequence.from("1".getBytes(StandardCharsets.UTF_8)), putOption))
                         .commit().get().isSucceeded();
             } else {
                 success = kvClient.txn()
                         .If(new Cmp(byteKey, Cmp.Op.EQUAL, CmpTarget.value(ByteSequence.from(String.valueOf(currValue).getBytes(StandardCharsets.UTF_8)))))
-                        .Then(Op.put(byteKey, ByteSequence.from(String.valueOf(newValue).getBytes(StandardCharsets.UTF_8)), putOpt))
+                        .Then(Op.put(byteKey, ByteSequence.from(String.valueOf(newValue).getBytes(StandardCharsets.UTF_8)), putOption))
                         .commit().get().isSucceeded();
             }
 
