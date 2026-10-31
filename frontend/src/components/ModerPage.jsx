@@ -103,7 +103,7 @@ function ModerPage({ showMessage }) {
     }
 
     return (
-        <div>
+        <div className="page">
             <h2>модерация товаров и заказов</h2>
 
             <div>
@@ -161,14 +161,14 @@ function ModerPage({ showMessage }) {
                     )}
 
                     {orders.length !== 0 && (orders.map(order => (
-                        <div key={order.id}>
+                        <div key={order.id} className="card">
                             {(order.status === 'confirmed' || order.status === 'accepted') && (
                                 <div>
                                     <div>
-                                        <h3>заказ {order.id}</h3>
+                                        <h3>заказ №{order.id}</h3>
                                         <p>клиент: {order.username}</p>
                                         <p>статус заказа: {order.status}</p>
-                                        <p>сумма: {order.cost}</p>
+                                        <p>сумма: {order.cost} руб.</p>
                                     </div>
 
                                     {order.status === 'confirmed' && (
@@ -204,8 +204,8 @@ function ModerPage({ showMessage }) {
                                             {order.orderList.map(item => (
                                                 <tr key={item.productId}>
                                                     <td>{item.productName}</td>
-                                                    <td>{item.productPrice}</td>
-                                                    <td>{item.amount}</td>
+                                                    <td>{item.productPrice} руб.</td>
+                                                    <td>{item.amount} шт.</td>
                                                 </tr>
                                             ))}
                                             </tbody>

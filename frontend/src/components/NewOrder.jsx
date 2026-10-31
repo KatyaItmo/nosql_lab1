@@ -76,7 +76,7 @@ function NewOrder({ orderId, code, showMessage, setIsConfirmingOrder }) {
     }
 
     return (
-        <div>
+        <div className="page">
             <h2>подтверждение заказа</h2>
 
             <form>

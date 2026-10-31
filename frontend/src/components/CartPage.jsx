@@ -164,7 +164,7 @@ function CartPage({ showMessage }) {
     }, [isConfirmingOrder]);
 
     return (
-        <div>
+        <div className="page">
             {isConfirmingOrder ? (
                 <NewOrder orderId={newOrderId} code={confirmCode} showMessage={showMessage} setIsConfirmingOrder={setIsConfirmingOrder} />
             ) : (
@@ -193,7 +193,7 @@ function CartPage({ showMessage }) {
                         )}
 
                         {cartItems.length !== 0 && (cartItems.map(item => (
-                            <div key={item.id}>
+                            <div key={item.id} className="card">
                                 <div>
                                     <h3>{item.product.name}</h3>
                                     <p>количество: {item.amount}</p>

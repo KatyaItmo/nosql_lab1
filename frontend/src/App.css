@@ -1,184 +1,380 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ======================================================
+   🌸 PICK-ME DARK PINK THEME (Душевно & Monospace) 🌸
+   ====================================================== */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* Общий тёмный фильтр поверх картинки, чтобы текст читался */
+  --bg-overlay: rgba(18, 12, 16, 0.75);
+
+  /*
+     ✨ Сделали дивы прозрачнее (0.45), чтобы фон наконец-то просвечивал!
+  */
+  --card-bg: rgba(26, 17, 24, 0.45);
+  --card-bg-hover: rgba(40, 25, 36, 0.65);
+
+  /* Сочный пикми-розовый & Неон */
+  --pink-main: #ff77a9;
+  --pink-bright: #ff3385;
+  --pink-soft: #ffb3d1;
+  --pink-glow: rgba(255, 119, 169, 0.4);
+  --purple-accent: #c77dff;
+
+  /* Текст и границы */
+  --text-main: #ffe6f2;
+  --text-muted: #d6a7bc;
+  --border-pink: rgba(255, 119, 169, 0.45);
+  --border-pink-bold: #ff77a9;
+
+  /* Шрифт */
+  --font-code: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
+/* === СБРОС И БАЗОВЫЕ НАСТРОЙКИ === */
+* {
+  box-sizing: border-box;
+  margin: 0;
   padding: 0;
-  display: flex;
+}
+
+/* === ФОН И СТРАНИЦА === */
+body {
+  font-family: var(--font-code);
+  color: var(--text-main);
+  line-height: 1.6;
+  padding: 30px 15px;
+
+  /*
+     🖼 Вставьте имя вашего файла с картинкой сюда:
+  */
+  background-image:
+          linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+          url('uncanny_cat.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* Эффект легкой винтажной сетки поверх всего */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(rgba(255, 119, 169, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* === ТЕКСТ, ЗАГОЛОВКИ И ВЫДЕЛЕНИЕ === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-code);
+  color: var(--pink-bright);
+  text-shadow: 0 0 10px var(--pink-glow);
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+h1::before { content: "✨ "; }
+h2::before { content: "🌸 "; }
+h3::before { content: "🎀 "; }
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.7rem; }
+h3 { font-size: 1.3rem; }
+
+p {
+  margin-bottom: 1em;
+  color: var(--text-main);
+}
+
+a {
+  color: var(--pink-soft);
+  text-decoration: none;
+  border-bottom: 2px dashed var(--pink-main);
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: #fff;
+  background-color: var(--pink-bright);
+  border-bottom-style: solid;
+  box-shadow: 0 0 8px var(--pink-bright);
+}
+
+::selection {
+  background: var(--pink-bright);
+  color: #fff;
+}
+
+/* === БЛОКИ, DIV И КОНТЕЙНЕРЫ (Воздушные и прозрачные) === */
+/* === БЛОКИ, DIV И КОНТЕЙНЕРЫ (Максимально воздушные) === */
+.page, .card {
+  background: rgba(26, 17, 24, 0.45); /* Сделали почти прозрачным */
+  border: 2px solid var(--border-pink);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  /* Убрали блюр полностью, чтобы фон не мылился и просвечивал насквозь */
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+  transition: border-color 0.3s, transform 0.2s, background 0.3s, box-shadow 0.3s;
+}
+
+.page:hover, .card:hover {
+  border-color: var(--border-pink-bold);
+  background: rgba(40, 25, 36, 0.25); /* При наведении тоже остается прозрачным */
+  box-shadow: 0 0 15px var(--pink-glow);
+}
+
+/* === КНОПКИ (Уютный handmade стиль) === */
+button, input[type="submit"], input[type="button"] {
+  font-family: var(--font-code);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ff77a9 0%, #ff3385 100%);
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px var(--purple-accent);
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  margin: 10px;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+button::after {
+  content: " ♡";
 }
 
-.ticks {
-  position: relative;
+button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--purple-accent);
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--purple-accent);
+}
+
+/* === ПОЛЯ ВВОДА И ФОРМЫ === */
+input[type="text"], input[type="password"], input[type="email"], textarea, select {
+  font-family: var(--font-code);
+  background-color: rgba(15, 10, 14, 0.6);
+  border: 2px solid var(--border-pink);
+  border-radius: 8px;
+  color: var(--text-main);
+  padding: 10px 14px;
+  outline: none;
   width: 100%;
+  max-width: 400px;
+  margin: 12px;
+  transition: all 0.3s;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+/* Розовый цвет плейсхолдера */
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+input:focus, textarea:focus, select:focus {
+  border-color: var(--pink-bright);
+  box-shadow: 0 0 10px var(--pink-glow);
+  background-color: rgba(25, 15, 23, 0.85);
+}
+
+/* Чекбоксы и радиокнопки */
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--pink-bright);
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  margin-left: 2px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+input[type="checkbox"] + label, input[type="radio"] + label {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* === ТАБЛИЦЫ === */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
+  background: var(--card-bg);
+  border: 2px solid var(--pink-main);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(3px);
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px dashed var(--border-pink);
+  font-size: 0.9rem;
+}
+
+th {
+  background-color: rgba(255, 119, 169, 0.25);
+  color: var(--pink-soft);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--pink-main);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+tr:hover td {
+  background-color: rgba(255, 119, 169, 0.15);
+  color: #fff;
+}
+
+/* === СПИСКИ === */
+ul, ol {
+  padding-left: 25px;
+  margin-bottom: 1em;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+ul li::marker {
+  content: "💖 ";
+}
+
+/* === ФУТЕР === */
+footer, .footer {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 40px;
+  padding: 15px;
+  border-top: 1px dashed var(--border-pink);
+}
+
+/* === ИСХОДНЫЙ КОД И ЦИТАТЫ === */
+code, pre {
+  font-family: var(--font-code);
+  background: rgba(10, 5, 8, 0.7);
+  border: 1px solid var(--pink-main);
+  border-radius: 6px;
+}
+
+code {
+  padding: 2px 6px;
+  color: var(--pink-soft);
+}
+
+pre {
+  padding: 15px;
+  overflow-x: auto;
+  margin: 15px 0;
+}
+
+pre code {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+blockquote {
+  border-left: 4px solid var(--pink-bright);
+  background: rgba(255, 119, 169, 0.1);
+  padding: 12px 18px;
+  margin: 15px 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: var(--pink-soft);
+}
+
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pink-main), transparent);
+  margin: 30px 0;
+}
+
+/* === ФИКСИРОВАННЫЕ УВЕДОМЛЕНИЯ (ТОСТЫ) === */
+
+/* Базовый стиль фиксированного блока */
+div.message {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 9999;
+  max-width: 350px;
+
+  /* Полупрозрачная подложка, чтобы фон просвечивал */
+  background: rgba(26, 17, 24, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+
+  font-family: var(--font-code);
+  font-size: 0.9rem;
+  animation: popUp 0.25s ease-in-out;
+}
+
+/* Обычное текстовое сообщение (нежно-розовый вайб) */
+div.message.text {
+  border: 2px solid var(--pink-main);
+  color: var(--text-main);
+}
+
+div.message.text::before {
+  content: "💬 ";
+}
+
+/* Сообщение об ошибке (тревожно-кричащий розово-красный неон) */
+div.message.error {
+  border: 2px solid #ff3355;
+  background: rgba(40, 15, 20, 0.9);
+  color: #ff99aa;
+  box-shadow: 0 0 15px rgba(255, 51, 85, 0.4);
+}
+
+div.message.error::before {
+  content: "⚠️ ";
+}
+
+/* Маленькая милая анимация появления */
+@keyframes popUp {
+  0% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
   }
 }
+

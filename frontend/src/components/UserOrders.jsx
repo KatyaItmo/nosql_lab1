@@ -21,7 +21,7 @@ function UserOrders({ showMessage }) {
     }, []);
 
     return (
-        <div>
+        <div className="page">
             <h2>мои заказы</h2>
 
             <button
@@ -37,20 +37,11 @@ function UserOrders({ showMessage }) {
                 )}
 
                 {userOrders.length !== 0 && (userOrders.map(order => (
-                    <div key={order.id}>
+                    <div key={order.id} className="card">
                         <div>
-                            <h3>заказ {order.id}</h3>
+                            <h3>заказ №{order.id}</h3>
                             <p>статус заказа: {order.status}</p>
-                            <p>сумма: {order.cost}</p>
-                        </div>
-
-                        <div>
-                            <button
-                                type="button"
-
-                            >
-                                повторить заказ
-                            </button>
+                            <p>сумма: {order.cost} руб.</p>
                         </div>
 
                         <div>
@@ -68,8 +59,8 @@ function UserOrders({ showMessage }) {
                                 {order.orderList.map(item => (
                                     <tr key={item.productId}>
                                         <td>{item.productName}</td>
-                                        <td>{item.productPrice}</td>
-                                        <td>{item.amount}</td>
+                                        <td>{item.productPrice} руб.</td>
+                                        <td>{item.amount} шт.</td>
                                     </tr>
                                 ))}
                                 </tbody>

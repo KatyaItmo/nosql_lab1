@@ -104,7 +104,7 @@ function ProductCatalog({ userRole, showMessage }) {
     }
 
     return (
-        <div>
+        <div className="page">
             <h2>каталог товаров</h2>
 
             <button
@@ -120,7 +120,7 @@ function ProductCatalog({ userRole, showMessage }) {
                 )}
 
                 {products.length !== 0 && (products.map(product => (
-                    <div key={product.id} >
+                    <div key={product.id} className="card">
                         <h3>{product.name}</h3>
                         <p>{product.description}</p>
                         <p>Цена за шт. {product.price} руб.</p>

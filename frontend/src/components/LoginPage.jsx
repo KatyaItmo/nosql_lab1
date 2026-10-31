@@ -62,7 +62,7 @@ function LoginPage({ onLoginSuccess, showMessage }) {
     };
 
     return (
-        <div>
+        <div className="page">
             <h2>{isRegistering ? 'регистрация' : 'вход'}</h2>
 
             <form>

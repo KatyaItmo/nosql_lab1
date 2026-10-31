@@ -6,6 +6,7 @@ import ProductCatalog from "./components/ProductCatalog.jsx";
 import ModerPage from "./components/ModerPage.jsx";
 import UserOrders from "./components/UserOrders.jsx";
 import CartPage from "./components/CartPage.jsx";
+import './App.css'
 
 function App() {
     const [currentPage, setCurrentPage] = useState("main");
